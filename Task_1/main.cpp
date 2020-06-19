@@ -8,8 +8,8 @@ using namespace std;
 
 class Pair {
 public:
-    Pair(const char *key, int count) : key(key), count(count) {}
-    const char *key;
+    Pair(const char *word, int count) : word(word), count(count) {}
+    const char *word;
     mutable int count;
 };
 
@@ -17,15 +17,15 @@ struct WordsComparator {
     typedef std::true_type is_transparent;
 
     bool operator()(const Pair& l, const char *r) const {
-        return strcmp(l.key, r) < 0;
+        return strcmp(l.word, r) < 0;
     }
 
     bool operator()(const char *l, const Pair& r) const {
-        return strcmp(l, r.key) < 0;
+        return strcmp(l, r.word) < 0;
     }
 
     bool operator()(const Pair& l, const Pair& r) const {
-        return strcmp(l.key, r.key) < 0;
+        return strcmp(l.word, r.word) < 0;
     }
 };
 
@@ -53,9 +53,9 @@ void check_file(ifstream &file) {
 }
 
 int get_file_size(ifstream &file) {
-    file.seekg (0, ios::end);
+    file.seekg(0, ios::end);
     const int size = file.tellg();
-    file.seekg (0, ios::beg);
+    file.seekg(0, ios::beg);
     return size;
 }
 
@@ -67,7 +67,7 @@ char* read_file_to_buffer(ifstream &file, int file_size) {
     return Text;
 }
 
-set<Pair, CountComparator> count_words_in(char *Text, int size) {
+multiset<Pair, CountComparator> count_words_in(char *Text, int size) {
     set<Pair, WordsComparator> comp_by_letters;
 
     size_t word_length = 0;
@@ -91,16 +91,16 @@ set<Pair, CountComparator> count_words_in(char *Text, int size) {
         }
     }
 
-    set<Pair, CountComparator> comp_by_count;
-    for(auto w : comp_by_letters) {
+    multiset<Pair, CountComparator> comp_by_count;
+    for(auto w : comp_by_letters)
         comp_by_count.insert(w);
-    }
+
     return comp_by_count;
 }
 
-void show_res(set<Pair, CountComparator>& words, int file_size, int elapsed_time) {
+void show_res(multiset<Pair, CountComparator>& words, int file_size, int elapsed_time) {
     for (auto element : words)
-        cout << element.key << " - " << element.count << endl;
+        cout << element.word << " - " << element.count << endl;
     cout << "File size " << file_size << " B" << endl;
     cout << "Elapsed " << elapsed_time << " ms" << endl;
 }
