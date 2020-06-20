@@ -3,13 +3,13 @@
 using namespace std;
 
 
-template <class Type>
+template <class T>
 class SmartPointer {
 public:
-    SmartPointer(Type *object) : Pointer(object) {
+    SmartPointer(T *object) : Pointer(object) {
         RefsCount = new uint();
         (*RefsCount)++;
-        cout << "References count init: " << *RefsCount << endl;
+        cout << "Smart pointer init" << endl;
     }
 
     SmartPointer(SmartPointer *pointer) {
@@ -17,10 +17,10 @@ public:
     }
 
     ~SmartPointer() {
-        Dispose();
+        Release();
     }
 
-    Type* Get() const {
+    T* Get() const {
         if (!Pointer) {
             cout << "Pointer was removed!" << endl;
             exit(1);
@@ -28,32 +28,13 @@ public:
         return Pointer;
     }
 
-    void Set(Type *pointer) {
+    void Set(T *pointer) {
         Pointer = pointer;
+        RefsCount = new uint();
+        (*RefsCount)++;
     }
 
-    SmartPointer& operator=(const SmartPointer& right) {
-        if (this == &right)
-            return *this;
-
-        Dispose();
-        Link(right);
-        return *this;
-    }
-
-    Type* operator->() {
-        return Pointer;
-    }
-
-    Type* operator*() {
-        return Pointer;
-    }
-
-private:
-    Type* Pointer;
-    uint* RefsCount;
-
-    void Dispose() {
+    void Release() {
         if (!Pointer)
             return;
         (*RefsCount)--;
@@ -68,6 +49,27 @@ private:
         RefsCount = nullptr;
     }
 
+    SmartPointer& operator=(const SmartPointer& right) {
+        if (this == &right)
+            return *this;
+
+        Release();
+        Link(right);
+        return *this;
+    }
+
+    T* operator->() {
+        return Pointer;
+    }
+
+    T* operator*() {
+        return Pointer;
+    }
+
+private:
+    T* Pointer;
+    uint* RefsCount;
+
     void Link(SmartPointer *pointer){
         Pointer = pointer->Pointer;
 
@@ -78,10 +80,8 @@ private:
 };
 
 void start_test(int test_number) {
+    cout << "----------------------" << endl;
     cout << "Test " << test_number << endl;
-}
-
-void end_test() {
     cout << "----------------------" << endl;
 }
 
@@ -91,7 +91,7 @@ void test_1() {
     char* pointer = new char(97); // a
     cout << *pointer << endl; // a
 
-    auto* smart_pointer = new SmartPointer<char>(pointer); // References count init: 1
+    auto* smart_pointer = new SmartPointer<char>(pointer); // Smart pointer init
     cout << smart_pointer->Get() << endl; // a
     auto* smart_pointer2 = new SmartPointer<char>(smart_pointer); // References count increased: 2
     cout << smart_pointer2->Get() << endl; // a
@@ -100,8 +100,6 @@ void test_1() {
     cout << smart_pointer2->Get() << endl; // a
 
     delete smart_pointer2; // References count decreased: 0; Deleting...
-
-    end_test();
 }
 
 void test_2() {
@@ -109,16 +107,12 @@ void test_2() {
 
     char* pointer = new char(98); // b
 
-    auto* smart_pointer = new SmartPointer<char>(pointer); // References count init: 1
-    auto* smart_pointer2 = smart_pointer; // None
+    auto* smart_pointer = new SmartPointer<char>(pointer); // Smart pointer init
+    auto* smart_pointer_2 = new SmartPointer<char>(smart_pointer); // References count increased: 2
+    auto* smart_pointer_3 = new SmartPointer<char>(smart_pointer_2); // References count increased: 3
 
-    cout << smart_pointer2->Get() << endl; // b
-    delete smart_pointer; // References count decreased: 0; Deleting...
-    cout << smart_pointer2->Get() << endl; // Pointer was removed!; exit code 1
-
-    delete smart_pointer2; // None
-
-    end_test();
+    delete smart_pointer; // References count decreased: 2
+    delete smart_pointer_2; // References count decreased: 1
 }
 
 void test_3() {
@@ -127,19 +121,33 @@ void test_3() {
     char* pointer = new char(99); // c
     char* pointer_2 = new char(100); // d
 
-    auto* smart_pointer = new SmartPointer<char>(pointer); // References count init: 1
+    auto* smart_pointer = new SmartPointer<char>(pointer); // Smart pointer init
 
     smart_pointer->Set(pointer_2); // None
 
     delete pointer_2; // None
+}
 
-    end_test();
+void test_4() {
+    start_test(4);
+
+    char* pointer = new char(101); // e
+
+    auto* smart_pointer = new SmartPointer<char>(pointer); // Smart pointer init
+    auto* smart_pointer2 = smart_pointer; // None
+
+    cout << smart_pointer2->Get() << endl; // e
+    delete smart_pointer; // References count decreased: 0; Deleting...
+    cout << smart_pointer2->Get() << endl; // Pointer was removed!; exit code 1
+
+    delete smart_pointer2; // None
 }
 
 int main() {
     test_1();
     test_2();
     test_3();
+    test_4();
 
     return 0;
 }
