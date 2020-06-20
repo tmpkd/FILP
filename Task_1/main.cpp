@@ -14,7 +14,7 @@ public:
 };
 
 struct WordsComparator {
-    typedef std::true_type is_transparent;
+    typedef true_type is_transparent;
 
     bool operator()(const Pair& l, const char *r) const {
         return strcmp(l.word, r) < 0;
@@ -30,7 +30,7 @@ struct WordsComparator {
 };
 
 struct CountComparator {
-    typedef std::true_type is_transparent;
+    typedef true_type is_transparent;
 
     bool operator()(const Pair& l, const int r) const {
         return l.count < r;
@@ -81,11 +81,10 @@ multiset<Pair, CountComparator> count_words_in(char *Text, int size) {
             if (word_length == 0)
                 continue;
             auto cur_word = comp_by_letters.find(word);
-            if (cur_word == comp_by_letters.end()) {
+            if (cur_word == comp_by_letters.end())
                 comp_by_letters.insert(Pair(word, 1));
-            } else {
+            else
                 cur_word->count++;
-            }
             word_length = 0;
             word = (char*)malloc(word_length);
         }
@@ -98,11 +97,11 @@ multiset<Pair, CountComparator> count_words_in(char *Text, int size) {
     return comp_by_count;
 }
 
-void show_res(multiset<Pair, CountComparator>& words, int file_size, int elapsed_time) {
-    for (auto element : words)
+void show_res(multiset<Pair, CountComparator> *words, int file_size, int elapsed_time) {
+    for (auto element : *words)
         cout << element.word << " - " << element.count << endl;
     cout << "File size " << file_size << " B" << endl;
-    cout << "Elapsed " << elapsed_time << " ms" << endl;
+    cout << "Elapsed time " << elapsed_time << " ms" << endl;
 }
 
 int main(int argc, char **argv) {
@@ -116,8 +115,6 @@ int main(int argc, char **argv) {
     auto words_counts = count_words_in(Text, file_size);
     auto end = chrono::steady_clock::now();
 
-    show_res(words_counts, file_size, chrono::duration_cast<chrono::milliseconds>(end - start).count());
+    show_res(&words_counts, file_size, chrono::duration_cast<chrono::milliseconds>(end - start).count());
     return 0;
 }
-
-

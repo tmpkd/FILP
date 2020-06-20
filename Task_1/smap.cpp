@@ -8,7 +8,7 @@ using namespace std;
 
 
 struct CountComparator {
-    typedef std::true_type is_transparent;
+    typedef true_type is_transparent;
 
     bool operator()(const pair<string, int>& l, const int r) const {
         return l.second < r;
@@ -58,11 +58,10 @@ multiset<pair<string, int>, CountComparator> count_words_in(char *Text, int size
             if (word_length == 0)
                 continue;
             auto cur_word = word_counter.find(word);
-            if (cur_word == word_counter.end()) {
+            if (cur_word == word_counter.end())
                 word_counter[word] = 1;
-            } else {
+            else
                 cur_word->second++;
-            }
             word_length = 0;
             word = "";
         }
@@ -75,11 +74,11 @@ multiset<pair<string, int>, CountComparator> count_words_in(char *Text, int size
     return count_sorted;
 }
 
-void show_res(multiset<pair<string, int>, CountComparator>& words, int file_size, int elapsed_time) {
-    for (const auto& word : words)
+void show_res(multiset<pair<string, int>, CountComparator> *words, int file_size, int elapsed_time) {
+    for (const auto& word : *words)
         cout << word.first << " - " << word.second << endl;
-    cout << "File size " << file_size << " B" << endl;
-    cout << "Elapsed " << elapsed_time << " ms" << endl;
+    cout << "File size " << file_size << "B" << endl;
+    cout << "Elapsed time " << elapsed_time << "ms" << endl;
 }
 
 int main(int argc, char **argv) {
@@ -93,7 +92,7 @@ int main(int argc, char **argv) {
     auto words_counts = count_words_in(Text, file_size);
     auto end = chrono::steady_clock::now();
 
-    show_res(words_counts, file_size, chrono::duration_cast<chrono::milliseconds>(end - start).count());
+    show_res(&words_counts, file_size, chrono::duration_cast<chrono::milliseconds>(end - start).count());
     return 0;
 }
 
