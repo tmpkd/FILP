@@ -56,7 +56,7 @@ public:
             }
         }
 
-        if (min_size / 2 >= alloc_req_size)
+        while(min_size / 2 >= alloc_req_size)
         {
             auto* new_block = new Block(min_size / 2, block->start_ptr);
             auto* buddy = new Block(min_size / 2, (void*)((size_t)(block->start_ptr) + min_size / 2));
@@ -68,9 +68,8 @@ public:
             blocks_dict[new_block->start_ptr] = new_block;
             blocks_dict[buddy->start_ptr] = buddy;
 
-            cout << "New block with size " << new_block->size << " : " << new_block->start_ptr << " --> " << (void*)((size_t)new_block->start_ptr + min_size/2) << endl;
-
-            return new_block->start_ptr;
+            block = new_block;
+            min_size /= 2;
         }
 
         cout << "New block with size " << block->size << " : " << block->start_ptr << " --> " << (void*)((size_t)block->start_ptr + min_size) << endl;
