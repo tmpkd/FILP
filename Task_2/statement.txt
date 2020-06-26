@@ -1,0 +1,5 @@
+Задача 2.
+
+Реализовать алгоритм buddy allocator
+
+https://en.wikipedia.org/wiki/Buddy_memory_allocation
